@@ -27,6 +27,34 @@ class ComplexNumber
     {
         return $"{Real} {(Imag >= 0 ? "+" : "-")} {Math.Abs(Imag)}i";
     }
+
+    public static ComplexNumber operator +(ComplexNumber a, ComplexNumber b)
+    {
+        return new ComplexNumber(a.Real + b.Real, a.Imag + b.Imag);
+    }
+
+    public static ComplexNumber operator -(ComplexNumber a, ComplexNumber b)
+    {
+        return new ComplexNumber(a.Real - b.Real, a.Imag - b.Imag);
+    }
+
+    public static ComplexNumber operator *(ComplexNumber a, ComplexNumber b)
+    {
+        double real = a.Real * b.Real - a.Imag * b.Imag;
+        double imag = a.Real * b.Imag + a.Imag * b.Real;
+        return new ComplexNumber(real, imag);
+    }
+
+    public static ComplexNumber operator /(ComplexNumber a, ComplexNumber b)
+    {
+        double denominator = b.Real * b.Real + b.Imag * b.Imag;
+        if (denominator == 0)
+            throw new DivideByZeroException("Cannot divide by zero complex number.");
+        double real = (a.Real * b.Real + a.Imag * b.Imag) / denominator;
+        double imag = (a.Imag * b.Real - a.Real * b.Imag) / denominator;
+        return new ComplexNumber(real, imag);
+    }
+
 }
 
 // Polar/Exponential complex number
