@@ -1,4 +1,4 @@
-class ComplexVector : ComplexMatrix
+public class ComplexVector : ComplexMatrix
 {
     public int Length => Rows; // since this is always n×1
 

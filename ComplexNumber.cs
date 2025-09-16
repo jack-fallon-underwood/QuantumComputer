@@ -1,4 +1,4 @@
-class ComplexNumber
+public class ComplexNumber
 {
     public double Real { get; set; }
     public double Imag { get; set; }
@@ -85,7 +85,7 @@ class ComplexNumber
 }
 
 // Polar/Exponential complex number
-struct PolarComplex
+public struct PolarComplex
 {
     public double Magnitude { get; set; } // r
     public double Angle { get; set; }     // theta in radians

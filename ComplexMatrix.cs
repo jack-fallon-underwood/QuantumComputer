@@ -1,4 +1,4 @@
-class ComplexMatrix
+public class ComplexMatrix
 {
     public ComplexNumber[,] Data { get; private set; }
     public int Rows => Data.GetLength(0);
