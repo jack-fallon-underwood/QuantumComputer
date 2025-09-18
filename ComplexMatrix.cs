@@ -5,9 +5,12 @@ public class ComplexMatrix
     public int Cols => Data.GetLength(1);
 
     public ComplexMatrix(int rows, int cols)
-    {
-        Data = new ComplexNumber[rows, cols];
-    }
+{
+    Data = new ComplexNumber[rows, cols];
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            Data[i, j] = new ComplexNumber(0, 0); // ensure no nulls
+}
 
     public ComplexMatrix(ComplexNumber[,] initialData)
     {

@@ -1,4 +1,4 @@
-class StochasticMatrix
+public class Stochastic
 {
     public static bool IsBooleanColumnStochastic(ComplexMatrix m)
     {
@@ -126,44 +126,61 @@ class StochasticMatrix
 
 
     // Textbook Input might be wrong 
-    public static List<ComplexMatrix> FirstNStates(ComplexMatrix A, ComplexMatrix state, int n)
+ public static List<ComplexMatrix> FirstNStates(ComplexMatrix A, ComplexMatrix state, int n)
+{
+    if (A.Rows != A.Cols)
+        throw new ArgumentException("Matrix must be square.");
+    if (!IsColumnStochastic(A))
+        throw new ArgumentException("Matrix must be column-stochastic.");
+    if (n < 0)
+        throw new ArgumentException("Number of states must be non-negative.");
+
+    // Generate default state vector if null
+    if (state == null)
     {
-        if (A.Rows != A.Cols)
-            throw new ArgumentException("Matrix must be square.");
+        state = new ComplexMatrix(A.Rows, 1);
+        state.Data[0, 0] = new ComplexNumber(1, 0);
+        for (int i = 1; i < A.Rows; i++)
+            state.Data[i, 0] = new ComplexNumber(0, 0);
+    }
+    else if (state.Rows != A.Rows || state.Cols != 1)
+    {
+        throw new ArgumentException("State vector must match matrix size.");
+    }
+
+    var states = new List<ComplexMatrix>();
+    ComplexMatrix current = state;
+    for (int i = 0; i < n; i++)
+    {
+        states.Add(current);
+        current = A * current;
+    }
+    return states;
+}
+
+
+        public static ComplexMatrix SequenceOnBasisVector(List<ComplexMatrix> matrices)
+{
+    if (matrices == null || matrices.Count == 0)
+        throw new ArgumentException("Matrix sequence cannot be null or empty.");
+
+    int size = matrices[0].Rows;
+    var state = new ComplexMatrix(size, 1);
+    state.Data[0, 0] = new ComplexNumber(1, 0);
+    for (int i = 1; i < size; i++)
+        state.Data[i, 0] = new ComplexNumber(0, 0);
+
+    foreach (var A in matrices)
+    {
+        if (A.Rows != size || A.Cols != size)
+            throw new ArgumentException("All matrices must be square and match the vector size.");
         if (!IsColumnStochastic(A))
-            throw new ArgumentException("Matrix must be column-stochastic.");
-        if (state.Rows != A.Rows || state.Cols != 1)
-            throw new ArgumentException("State vector must match matrix size.");
-        if (n < 0)
-            throw new ArgumentException("Number of states must be non-negative.");
-
-        var states = new List<ComplexMatrix>();
-        ComplexMatrix current = state;
-        for (int i = 0; i < n; i++)
-        {
-            states.Add(current);
-            current = A * current;
-        }
-        return states;
+            throw new ArgumentException("All matrices must be column-stochastic.");
     }
 
-    public static ComplexMatrix SequenceOnBasisVector(List<ComplexMatrix> matrices, int size)
-    {
-        var init = new ComplexMatrix(size, 1);
-        init.Data[0, 0] = new ComplexNumber(1, 0);
-        for (int i = 1; i < size; i++)
-            init.Data[i, 0] = new ComplexNumber(0, 0);
+    return StateAfterSequence(matrices, state);
+}
 
-        foreach (var A in matrices)
-        {
-            if (A.Rows != size || A.Cols != size)
-                throw new ArgumentException("All matrices must be square and match the vector size.");
-            if (!IsColumnStochastic(A))
-                throw new ArgumentException("All matrices must be column-stochastic.");
-        }
-
-        return StateAfterSequence(matrices, init);
-    }
 
     private static void CheckRealColumnNormalized(ComplexMatrix A)
     {
@@ -178,37 +195,58 @@ class StochasticMatrix
         return Power(A, n);
     }
 
+//Textbook might be wrong 
+public static ComplexMatrix StateAfterNStepsColumnNormalized(ComplexMatrix A, ComplexMatrix state, int n)
+{
+    CheckRealColumnNormalized(A);
 
-    public static ComplexMatrix StateAfterNStepsColumnNormalized(ComplexMatrix A, ComplexMatrix state, int n)
+    if (n < 0)
+        throw new ArgumentException("Number of steps must be non-negative.");
+
+    // Generate default state vector if null
+    if (state == null)
+    {
+        state = new ComplexMatrix(A.Rows, 1);
+        state.Data[0, 0] = new ComplexNumber(1, 0);
+        for (int i = 1; i < A.Rows; i++)
+            state.Data[i, 0] = new ComplexNumber(0, 0);
+    }
+    else if (state.Rows != A.Rows || state.Cols != 1)
+    {
+        throw new ArgumentException("State vector must match matrix size.");
+    }
+
+    ComplexMatrix result = state;
+    for (int i = 0; i < n; i++)
+        result = A * result;
+
+    return result;
+}
+
+
+public static ComplexMatrix SequenceOnBasisVectorColumnNormalized(List<ComplexMatrix> matrices)
+{
+    if (matrices == null || matrices.Count == 0)
+        throw new ArgumentException("Matrix list cannot be null or empty.");
+
+    int size = matrices[0].Rows;
+
+    var state = new ComplexMatrix(size, 1);
+    state.Data[0, 0] = new ComplexNumber(1, 0); // [1,0,...,0]^T
+    for (int i = 1; i < size; i++)
+        state.Data[i, 0] = new ComplexNumber(0, 0);
+
+    foreach (var A in matrices)
     {
         CheckRealColumnNormalized(A);
-        if (state.Rows != A.Rows || state.Cols != 1)
-            throw new ArgumentException("State vector must match matrix size.");
-        if (n < 0) throw new ArgumentException("Number of steps must be non-negative.");
-
-        ComplexMatrix result = state;
-        for (int i = 0; i < n; i++)
-            result = A * result;
-        return result;
+        if (A.Rows != size || A.Cols != size)
+            throw new ArgumentException("All matrices must be square and match the initial vector size.");
+        state = A * state;
     }
 
-    public static ComplexMatrix SequenceOnBasisVectorColumnNormalized(List<ComplexMatrix> matrices, int size)
-    {
-        var state = new ComplexMatrix(size, 1);
-        state.Data[0, 0] = new ComplexNumber(1, 0);
+    return state;
+}
 
-        for (int i = 1; i < size; i++)
-            state.Data[i, 0] = new ComplexNumber(0, 0);
-
-        foreach (var A in matrices)
-        {
-            CheckRealColumnNormalized(A);
-            if (A.Rows != size) throw new ArgumentException("Matrix size mismatch.");
-            state = A * state;
-        }
-
-        return state;
-    }
 
 
 

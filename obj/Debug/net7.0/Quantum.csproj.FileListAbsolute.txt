@@ -1,0 +1,15 @@
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.csproj.AssemblyReference.cache
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.AssemblyInfoInputs.cache
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.AssemblyInfo.cs
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.csproj.CoreCompileInputs.cache
+C:\Users\Owner\Documents\Quantum\bin\Debug\net7.0\Quantum.exe
+C:\Users\Owner\Documents\Quantum\bin\Debug\net7.0\Quantum.deps.json
+C:\Users\Owner\Documents\Quantum\bin\Debug\net7.0\Quantum.runtimeconfig.json
+C:\Users\Owner\Documents\Quantum\bin\Debug\net7.0\Quantum.dll
+C:\Users\Owner\Documents\Quantum\bin\Debug\net7.0\Quantum.pdb
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.dll
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\refint\Quantum.dll
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.pdb
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\Quantum.genruntimeconfig.cache
+C:\Users\Owner\Documents\Quantum\obj\Debug\net7.0\ref\Quantum.dll
