@@ -9,7 +9,7 @@ public class ComplexMatrix
     Data = new ComplexNumber[rows, cols];
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++)
-            Data[i, j] = new ComplexNumber(0, 0); // ensure no nulls
+            Data[i, j] = new ComplexNumber(0, 0);
 }
 
     public ComplexMatrix(ComplexNumber[,] initialData)
@@ -17,7 +17,7 @@ public class ComplexMatrix
         Data = initialData;
     }
 
-    // 1) Conjugate
+    
     public ComplexMatrix Conjugate()
     {
         var result = new ComplexNumber[Rows, Cols];
@@ -27,7 +27,7 @@ public class ComplexMatrix
         return new ComplexMatrix(result);
     }
 
-    // 2) Transpose
+    
     public ComplexMatrix Transpose()
     {
         var result = new ComplexNumber[Cols, Rows];
@@ -37,13 +37,13 @@ public class ComplexMatrix
         return new ComplexMatrix(result);
     }
 
-    // 3) Dagger (adjoint)
+    
     public ComplexMatrix Dagger()
     {
         return this.Conjugate().Transpose();
     }
 
-    // 4) Trace
+   
     public ComplexNumber Trace()
     {
         if (Rows != Cols)
@@ -56,7 +56,7 @@ public class ComplexMatrix
         return sum;
     }
 
-    // 5) Matrix addition
+    
     public static ComplexMatrix operator +(ComplexMatrix a, ComplexMatrix b)
     {
         if (a.Rows != b.Rows || a.Cols != b.Cols)
@@ -70,7 +70,7 @@ public class ComplexMatrix
         return new ComplexMatrix(result);
     }
 
-    // 6) Scalar multiplication
+   
     public static ComplexMatrix operator *(ComplexNumber scalar, ComplexMatrix m)
     {
         var result = new ComplexNumber[m.Rows, m.Cols];
@@ -81,7 +81,7 @@ public class ComplexMatrix
         return new ComplexMatrix(result);
     }
 
-    // 7) Matrix multiplication
+    
     public static ComplexMatrix operator *(ComplexMatrix a, ComplexMatrix b)
     {
         if (a.Cols != b.Rows)
@@ -115,124 +115,124 @@ public class ComplexMatrix
         return s;
     }
 
-    //     // Check if the matrix is symmetric: A^T == A
-    //     public bool IsSymmetric()
-    //     {
-    //         if (Rows != Cols) return false;
+        //  A^T == A
+        public bool IsSymmetric()
+        {
+            if (Rows != Cols) return false;
 
-    //         for (int i = 0; i < Rows; i++)
-    //         {
-    //             for (int j = 0; j <= i; j++) // check only lower triangle
-    //             {
-    //                 if (!Data[i, j].Equals(Data[j, i]))
-    //                     return false;
-    //             }
-    //         }
-    //         return true;
-    //     }
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j <= i; j++) 
+                {
+                    if (!Data[i, j].Equals(Data[j, i]))
+                        return false;
+                }
+            }
+            return true;
+        }
 
-    //     // Check if the matrix is orthogonal: A^T * A == I (real matrices)
-    //     public bool IsOrthogonal(double tolerance = 1e-10)
-    //     {
-    //         if (Rows != Cols) return false;
+        // A^T * A == I
+        public bool IsOrthogonal(double tolerance = 1e-10)
+        {
+            if (Rows != Cols) return false;
 
-    //         ComplexMatrix product = this.Transpose() * this;
-    //         for (int i = 0; i < Rows; i++)
-    //         {
-    //             for (int j = 0; j < Cols; j++)
-    //             {
-    //                 double expected = (i == j) ? 1.0 : 0.0;
-    //                 if (Math.Abs(product.Data[i, j].Real - expected) > tolerance ||
-    //                     Math.Abs(product.Data[i, j].Imag) > tolerance)
-    //                     return false;
-    //             }
-    //         }
-    //         return true;
-    //     }
+            ComplexMatrix product = this.Transpose() * this;
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    double expected = (i == j) ? 1.0 : 0.0;
+                    if (Math.Abs(product.Data[i, j].Real - expected) > tolerance ||
+                        Math.Abs(product.Data[i, j].Imag) > tolerance)
+                        return false;
+                }
+            }
+            return true;
+        }
 
-    //     // Check if the matrix is Hermitian: A† == A
-    //     public bool IsHermitian(double tolerance = 1e-10)
-    //     {
-    //         if (Rows != Cols) return false;
+        //A† == A
+        public bool IsHermitian(double tolerance = 1e-10)
+        {
+            if (Rows != Cols) return false;
 
-    //         ComplexMatrix dagger = this.Dagger();
-    //         for (int i = 0; i < Rows; i++)
-    //         {
-    //             for (int j = 0; j < Cols; j++)
-    //             {
-    //                 if (Math.Abs(dagger.Data[i, j].Real - Data[i, j].Real) > tolerance ||
-    //                     Math.Abs(dagger.Data[i, j].Imag - Data[i, j].Imag) > tolerance)
-    //                     return false;
-    //             }
-    //         }
-    //         return true;
-    //     }
+            ComplexMatrix dagger = this.Dagger();
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    if (Math.Abs(dagger.Data[i, j].Real - Data[i, j].Real) > tolerance ||
+                        Math.Abs(dagger.Data[i, j].Imag - Data[i, j].Imag) > tolerance)
+                        return false;
+                }
+            }
+            return true;
+        }
 
-    //     // Check if the matrix is Unitary: A† * A == I
-    //     public bool IsUnitary(double tolerance = 1e-10)
-    //     {
-    //         if (Rows != Cols) return false;
+        // A† * A == I
+        public bool IsUnitary(double tolerance = 1e-10)
+        {
+            if (Rows != Cols) return false;
 
-    //         ComplexMatrix product = this.Dagger() * this;
-    //         for (int i = 0; i < Rows; i++)
-    //         {
-    //             for (int j = 0; j < Cols; j++)
-    //             {
-    //                 double expected = (i == j) ? 1.0 : 0.0;
-    //                 if (Math.Abs(product.Data[i, j].Real - expected) > tolerance ||
-    //                     Math.Abs(product.Data[i, j].Imag) > tolerance)
-    //                     return false;
-    //             }
-    //         }
-    //         return true;
-    //     }
+            ComplexMatrix product = this.Dagger() * this;
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    double expected = (i == j) ? 1.0 : 0.0;
+                    if (Math.Abs(product.Data[i, j].Real - expected) > tolerance ||
+                        Math.Abs(product.Data[i, j].Imag) > tolerance)
+                        return false;
+                }
+            }
+            return true;
+        }
 
-    //     public bool IsEqual(ComplexMatrix other, double tolerance = 1e-10)
-    // {
-    //     if (this.Rows != other.Rows || this.Cols != other.Cols)
-    //         return false;
+        public bool IsEqual(ComplexMatrix other, double tolerance = 1e-10)
+    {
+        if (this.Rows != other.Rows || this.Cols != other.Cols)
+            return false;
 
-    //     for (int i = 0; i < Rows; i++)
-    //     {
-    //         for (int j = 0; j < Cols; j++)
-    //         {
-    //             if (Math.Abs(this.Data[i, j].Real - other.Data[i, j].Real) > tolerance ||
-    //                 Math.Abs(this.Data[i, j].Imag - other.Data[i, j].Imag) > tolerance)
-    //                 return false;
-    //         }
-    //     }
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Cols; j++)
+            {
+                if (Math.Abs(this.Data[i, j].Real - other.Data[i, j].Real) > tolerance ||
+                    Math.Abs(this.Data[i, j].Imag - other.Data[i, j].Imag) > tolerance)
+                    return false;
+            }
+        }
 
-    //     return true;
-    // }
+        return true;
+    }
 
-    // public bool EigenCheck(ComplexNumber lambda, ComplexVector v, double tolerance = 1e-10)
-    // {
-    //     if (this.Rows != this.Cols)
-    //         throw new InvalidOperationException("Eigenvalues are only defined for square matrices.");
+    public bool EigenCheck(ComplexNumber lambda, ComplexVector v, double tolerance = 1e-10)
+    {
+        if (this.Rows != this.Cols)
+            throw new InvalidOperationException("Eigenvalues are only defined for square matrices.");
 
-    //     if (this.Cols != v.Length)
-    //         throw new InvalidOperationException("Matrix and vector dimensions must match.");
+        if (this.Cols != v.Length)
+            throw new InvalidOperationException("Matrix and vector dimensions must match.");
 
-    //     // Compute A * v
-    //     ComplexMatrix Av = this * v;
+        // A * v
+        ComplexMatrix Av = this * v;
 
-    //     // Compute λ * v
-    //     ComplexMatrix Lv = new ComplexMatrix(v.Rows, 1);
-    //     for (int i = 0; i < v.Rows; i++)
-    //         Lv.Data[i, 0] = lambda * v.Data[i, 0];
+        // Compute λ * v
+        ComplexMatrix Lv = new ComplexMatrix(v.Rows, 1);
+        for (int i = 0; i < v.Rows; i++)
+            Lv.Data[i, 0] = lambda * v.Data[i, 0];
 
-    //     // Compare Av and λv element-wise
-    //     for (int i = 0; i < v.Rows; i++)
-    //     {
-    //         ComplexNumber diff = Av.Data[i, 0] - Lv.Data[i, 0];
-    //         if (Math.Abs(diff.Real) > tolerance || Math.Abs(diff.Imag) > tolerance)
-    //             return false;
-    //     }
+      
+        for (int i = 0; i < v.Rows; i++)
+        {
+            ComplexNumber diff = Av.Data[i, 0] - Lv.Data[i, 0];
+            if (Math.Abs(diff.Real) > tolerance || Math.Abs(diff.Imag) > tolerance)
+                return false;
+        }
 
-    //     return true;
-    // }
+        return true;
+    }
     
- 
+//static version of EigenCheck   
     public static bool EigenCheck(ComplexMatrix A, ComplexNumber lambda, ComplexVector v, double tolerance = 1e-10)
     {
         if (A.Rows != A.Cols)
@@ -241,7 +241,7 @@ public class ComplexMatrix
         if (A.Cols != v.Length)
             throw new InvalidOperationException("Matrix and vector dimensions must match.");
 
-        // Compute A * v
+        //  A * v
         ComplexMatrix Av = A * v;
 
         // Compute λ * v
@@ -249,7 +249,7 @@ public class ComplexMatrix
         for (int i = 0; i < v.Rows; i++)
             Lv.Data[i, 0] = lambda * v.Data[i, 0];
 
-        // Compare Av and λv element-wise
+       
         for (int i = 0; i < v.Rows; i++)
         {
             ComplexNumber diff = Av.Data[i, 0] - Lv.Data[i, 0];
