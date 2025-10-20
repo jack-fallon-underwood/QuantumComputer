@@ -16,7 +16,7 @@ public class ComplexVector : ComplexMatrix
     return Math.Sqrt(inner.Real);
 }
 
-    // Normalized vector (unit norm)
+
     public ComplexVector Normalize()
     {
         double norm = this.Norm();

@@ -21,7 +21,7 @@ public class ComplexNumber
         return Math.Sqrt(Real * Real + Imag * Imag);
     }
 
-    
+
     public ComplexNumber Normalized()
     {
         double mod = Modulus();
@@ -31,11 +31,11 @@ public class ComplexNumber
     }
 
     public static double ModuliDifference(ComplexNumber a, ComplexNumber b)
-{
-    double sumOfModuli = a.Modulus() + b.Modulus();
-    double modulusOfSum = (a + b).Modulus();
-    return sumOfModuli - modulusOfSum;
-}
+    {
+        double sumOfModuli = a.Modulus() + b.Modulus();
+        double modulusOfSum = (a + b).Modulus();
+        return sumOfModuli - modulusOfSum;
+    }
 
     public PolarComplex Gen2Polar()
     {
@@ -81,7 +81,13 @@ public class ComplexNumber
         return new ComplexNumber(real, imag);
     }
 
-    
+   public static ComplexNumber operator -(ComplexNumber a) => new ComplexNumber(-a.Real, -a.Imag);
+public static ComplexNumber operator *(ComplexNumber a, double scalar) => new ComplexNumber(a.Real * scalar, a.Imag * scalar);
+public static ComplexNumber operator *(double scalar, ComplexNumber a) => a * scalar;
+
+
+
+
 }
 
 // Polar/Exponential complex number
