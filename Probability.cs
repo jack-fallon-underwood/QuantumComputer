@@ -6,7 +6,7 @@ public static class Probability
         double sum = 0;
         foreach (double x in p)
         {
-            if (x < -tolerance) return false;  negative probabilities not allowed
+            if (x < -tolerance) return false; // negative probabilities not allowed
             sum += x;
         }
         return Math.Abs(sum - 1.0) < tolerance;
