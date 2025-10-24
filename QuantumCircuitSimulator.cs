@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-class QuantumCircuitSimulator
+public class QuantumCircuitSimulator
 {
-    static void Main()
+    // Main method moved to WPF App - keep this class for inheritance
+    public static void MainConsole()
     {
         Console.WriteLine("=== Quantum Circuit Simulator ===");
 

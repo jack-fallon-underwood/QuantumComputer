@@ -1,0 +1,79 @@
+<Window x:Class="QuantumBlochSphere.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bloch Sphere Quantum Circuit Simulator" Height="700" Width="1200"
+        Background="#1E1E1E">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel - Controls -->
+        <Border Grid.Column="0" Background="#252526" Padding="10" BorderBrush="#3E3E42" BorderThickness="0,0,1,0">
+            <StackPanel>
+                <TextBlock Text="Quantum Circuit Setup" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+
+                <!-- Number of Qubits -->
+                <TextBlock Text="Number of Qubits:" Foreground="White" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtNumQubits" Text="2" Background="#3E3E42" Foreground="White" Padding="5" Margin="0,0,0,15"/>
+
+                <!-- Initial State -->
+                <TextBlock Text="Initial Classical State:" Foreground="White" Margin="0,0,0,5"/>
+                <TextBlock Text="(e.g., '00' for 2 qubits)" Foreground="Gray" FontSize="10" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtInitialState" Text="00" Background="#3E3E42" Foreground="White" Padding="5" Margin="0,0,0,15"/>
+
+                <!-- Gate Selection -->
+                <TextBlock Text="Add Gate:" Foreground="White" Margin="0,0,0,5"/>
+                <ComboBox x:Name="cmbGateType" Background="#3E3E42" Foreground="White" Margin="0,0,0,10">
+                    <ComboBoxItem Content="Hadamard (H)" IsSelected="True"/>
+                    <ComboBoxItem Content="Pauli X"/>
+                    <ComboBoxItem Content="Pauli Y"/>
+                    <ComboBoxItem Content="Pauli Z"/>
+                    <ComboBoxItem Content="Rx (Rotation X)"/>
+                    <ComboBoxItem Content="Ry (Rotation Y)"/>
+                    <ComboBoxItem Content="Rz (Rotation Z)"/>
+                    <ComboBoxItem Content="CNOT"/>
+                </ComboBox>
+
+                <!-- Qubit Selection -->
+                <TextBlock Text="Target Qubit:" Foreground="White" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtTargetQubit" Text="0" Background="#3E3E42" Foreground="White" Padding="5" Margin="0,0,0,10"/>
+
+                <!-- Control Qubit (for CNOT) -->
+                <TextBlock x:Name="lblControlQubit" Text="Control Qubit (for CNOT):" Foreground="White" Margin="0,0,0,5" Visibility="Collapsed"/>
+                <TextBox x:Name="txtControlQubit" Text="0" Background="#3E3E42" Foreground="White" Padding="5" Margin="0,0,0,10" Visibility="Collapsed"/>
+
+                <!-- Rotation Angle (for Rx, Ry, Rz) -->
+                <TextBlock x:Name="lblRotationAngle" Text="Angle (radians):" Foreground="White" Margin="0,0,0,5" Visibility="Collapsed"/>
+                <TextBox x:Name="txtRotationAngle" Text="1.5708" Background="#3E3E42" Foreground="White" Padding="5" Margin="0,0,0,15" Visibility="Collapsed"/>
+
+                <!-- Buttons -->
+                <Button x:Name="btnAddGate" Content="Add Gate to Circuit" Background="#0E639C" Foreground="White" Padding="10" Margin="0,0,0,10" Click="BtnAddGate_Click" FontWeight="Bold"/>
+                <Button x:Name="btnSimulate" Content="Run Simulation" Background="#16825D" Foreground="White" Padding="10" Margin="0,0,0,10" Click="BtnSimulate_Click" FontWeight="Bold"/>
+                <Button x:Name="btnReset" Content="Reset Circuit" Background="#A1260D" Foreground="White" Padding="10" Margin="0,0,0,20" Click="BtnReset_Click" FontWeight="Bold"/>
+
+                <!-- Circuit Description -->
+                <TextBlock Text="Current Circuit:" Foreground="White" FontWeight="Bold" Margin="0,0,0,5"/>
+                <ScrollViewer Height="150" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                    <TextBlock x:Name="txtCircuitDescription" Text="(No gates added)" Foreground="LightGray" TextWrapping="Wrap" Background="#3E3E42" Padding="5"/>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- Right Panel - Visualization -->
+        <Grid Grid.Column="1" Background="#1E1E1E">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Bloch Sphere Visualization" FontSize="20" FontWeight="Bold"
+                       Foreground="White" HorizontalAlignment="Center" Margin="20"/>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <Canvas x:Name="canvasBlochSpheres" Background="#1E1E1E" Width="850" Height="2000"/>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
