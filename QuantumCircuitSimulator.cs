@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 class QuantumCircuitSimulator
 {
-    static void Main()
+    public static void Run()
     {
         Console.WriteLine("=== Quantum Circuit Simulator ===");
 
