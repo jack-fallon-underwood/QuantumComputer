@@ -1,5 +1,5 @@
 using System;
-
+using System.Numerics;
 public static class Cryptography
 {
    
@@ -32,116 +32,162 @@ public static class Cryptography
 
     // --- 1) Alice in RSA: generate keys, output N and e, ask for C and decode it ---
     // Returns (N, e, d, p, q) so other code can use private key if desired.
-    public static (int N, int e, int d, int p, int q) AliceGenerateRSAAndDecode()
+    public static (BigInteger N, BigInteger e, BigInteger d, BigInteger p, BigInteger q) AliceGenerateRSAAndDecode()
     {
-        var rng = new Random();
-        int p = PickRandomPrime(rng, 101, 400); 
-        int q = PickRandomPrime(rng, 401, 800); 
-        if (q == p) q = PickRandomPrime(rng, 401, 997);
+       var rng = new Random();
+        // Pick small int primes for console output, but use BigInteger for math
+        BigInteger pBig = new BigInteger(PickRandomPrime(rng, 101, 400)); 
+        BigInteger qBig = new BigInteger(PickRandomPrime(rng, 401, 800)); 
+        if (qBig == pBig) qBig = new BigInteger(PickRandomPrime(rng, 401, 997));
 
-        int N = Modular.Multiply(p, q, int.MaxValue); // not modular usage; product fits in int for these sizes
-        int phi = (p - 1) * (q - 1);
+        BigInteger N = pBig * qBig; // Standard multiplication, no modular needed here
+        BigInteger phi = (pBig - 1) * (qBig - 1);
 
-        int e = 3;
-        while (e < phi)
+        BigInteger e = 3;
+        while (e < phi)
+        {
+            if (Modular.AreCoprime(e, phi)) break;
+            e += 2;
+        }
+
+        BigInteger d;
+        try
         {
-            if (Modular.AreCoprime(e, phi)) break;
-            e += 2;
+            d = Modular.ModInverse(e, phi);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"[Alice] Error: Could not generate private key 'd'. {ex.Message}. Aborting.");
+            return (0, 0, 0, 0, 0);
         }
 
-        int d = Modular.ModInverse(e, phi);
-        Console.WriteLine($"[Alice] Generated RSA keys. N = {N}, e = {e} (private d hidden).");
-        Console.WriteLine("[Alice] Enter integer ciphertext C to decode (e.g., numeric ciphertext):");
-        string input = Console.ReadLine() ?? "";
-        if (!int.TryParse(input.Trim(), out int C))
+        Console.WriteLine($"[Alice] Generated RSA keys. N = {N}, e = {e} (private d hidden).");
+        Console.WriteLine("[Alice] Enter integer ciphertext C to decode (e.g., numeric ciphertext):");
+        string input = Console.ReadLine() ?? "";
+        if (!BigInteger.TryParse(input.Trim(), out BigInteger C))
+        {
+            Console.WriteLine("[Alice] Invalid input; expected integer ciphertext. Aborting decode.");
+            return (N, e, d, pBig, qBig);
+        }
+
+        // Decrypt: m = C^d mod N
+        BigInteger M = Modular.Power(C, d, N);
+        Console.WriteLine($"[Alice] Decrypted ciphertext C={C} -> M={M}");
+        return (N, e, d, pBig, qBig);
+    }
+
+
+   // --- 2) Bob in RSA: accepts N, e and M and returns C ---
+    public static BigInteger BobEncryptRSA(BigInteger N, BigInteger e, BigInteger M)
+    {
+        // C = M^e mod N
+        return Modular.Power(M, e, N);
+    }
+
+    // --- 3)
+    public static void Demo_RSA_ShowItWorks()
+    {
+        Console.WriteLine("=== RSA Demo ===");
+        var rng = new Random();
+        BigInteger pBig = new BigInteger(PickRandomPrime(rng, 101, 400)); 
+        BigInteger qBig = new BigInteger(PickRandomPrime(rng, 401, 800)); 
+        if (pBig == qBig) qBig = new BigInteger(PickRandomPrime(rng, 401, 997));
+        
+        BigInteger N = pBig * qBig;
+        BigInteger phi = (pBig - 1) * (qBig - 1);
+        
+        BigInteger e = 3;
+        while (e < phi && !Modular.AreCoprime(e, phi)) e += 2;
+        
+        BigInteger d;
+        try
         {
-            Console.WriteLine("[Alice] Invalid input; expected integer ciphertext. Aborting decode.");
-            return (N, e, d, p, q);
+            d = Modular.ModInverse(e, phi);
         }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"[Demo] Error generating keys: {ex.Message}. Aborting demo.");
+            return;
+        }
+        Console.WriteLine($"[Demo] Alice publishes (N={N}, e={e}). Alice keeps d private.");
+        // Use a small int for the message, cast to BigInteger
+       BigInteger upper = BigInteger.Min(int.MaxValue, N - 1);
+        int upperInt = (int)upper;
 
-        // Decrypt: m = C^d mod N
-        int M = Modular.Power(C, d, N);
-        Console.WriteLine($"[Alice] Decrypted ciphertext C={C} -> M={M}");
-        return (N, e, d, p, q);
-    }
-
-    // --- 2) Bob in RSA: accepts N, e and M and returns C ---
-    public static int BobEncryptRSA(int N, int e, int M)
-    {
-        // C = M^e mod N
-        return Modular.Power(M, e, N);
-    }
-
-    // --- 3)
-    public static void Demo_RSA_ShowItWorks()
-    {
-        Console.WriteLine("=== RSA Demo ===");
-        var rng = new Random();
-        int p = PickRandomPrime(rng, 101, 400);
-        int q = PickRandomPrime(rng, 401, 800);
-        if (p == q) q = PickRandomPrime(rng, 401, 997);
-        int N = p * q;
-        int phi = (p - 1) * (q - 1);
-        int e = 3;
-        while (e < phi && !Modular.AreCoprime(e, phi)) e += 2;
-        int d = Modular.ModInverse(e, phi);
-        Console.WriteLine($"[Demo] Alice publishes (N={N}, e={e}). Alice keeps d private.");
-        int M = rng.Next(2, N - 1);
+        BigInteger M = new BigInteger(rng.Next(2, upperInt));
         Console.WriteLine($"[Demo] Bob chooses message M={M} and encrypts it.");
-        int C = BobEncryptRSA(N, e, M);
-        Console.WriteLine($"[Demo] Bob sends ciphertext C={C} to Alice.");
-        int decrypted = Modular.Power(C, d, N);
-        Console.WriteLine($"[Demo] Alice decrypts C with d and recovers M'={decrypted}.");
-        Console.WriteLine(decrypted == M ? "[Demo] Success: decrypted == original message." : "[Demo] Failure: mismatch.");
-    }
+                
+        BigInteger C = BobEncryptRSA(N, e, M);
+        Console.WriteLine($"[Demo] Bob sends ciphertext C={C} to Alice.");
+        
+        BigInteger decrypted = Modular.Power(C, d, N);
+        Console.WriteLine($"[Demo] Alice decrypts C with d and recovers M'={decrypted}.");
+        Console.WriteLine(decrypted == M ? "[Demo] Success: decrypted == original message." : "[Demo] Failure: mismatch.");
+    }
 
-    // --- 4) Alice in Authentication RSA protocol (signing)
-    public static (int N, int e, int d, int M, int signature) AliceAuthSign()
-    {
-        var rng = new Random();
-        int p = PickRandomPrime(rng, 101, 400);
-        int q = PickRandomPrime(rng, 401, 800);
-        if (p == q) q = PickRandomPrime(rng, 401, 997);
+    // --- 4) Alice in Authentication RSA protocol (signing)
+    public static (BigInteger N, BigInteger e, BigInteger d, BigInteger M, BigInteger signature) AliceAuthSign()
+    {
+        var rng = new Random();
+        BigInteger pBig = new BigInteger(PickRandomPrime(rng, 101, 400)); 
+        BigInteger qBig = new BigInteger(PickRandomPrime(rng, 401, 800)); 
+        if (pBig == qBig) qBig = new BigInteger(PickRandomPrime(rng, 401, 997));
 
-        int N = p * q;
-        int phi = (p - 1) * (q - 1);
+        BigInteger N = pBig * qBig;
+        BigInteger phi = (pBig - 1) * (qBig - 1);
 
-        int e = 3;
-        while (e < phi && !Modular.AreCoprime(e, phi)) e += 2;
-        int d = Modular.ModInverse(e, phi);
+        BigInteger e = 3;
+        while (e < phi && !Modular.AreCoprime(e, phi)) e += 2;
 
-        Console.WriteLine($"[AliceAuth] Generated key pair. Public (N={N}, e={e}). Private d is kept secret.");
-        Console.WriteLine("[AliceAuth] Enter integer message M to sign:");
-        string inM = Console.ReadLine() ?? "";
-        if (!int.TryParse(inM.Trim(), out int M))
+        BigInteger d;
+        try
         {
-            Console.WriteLine("[AliceAuth] Invalid integer; aborting signing.");
+            d = Modular.ModInverse(e, phi);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"[AliceAuth] Error generating keys: {ex.Message}. Aborting signing.");
+            return (0, 0, 0, 0, 0);
+        }
+
+        Console.WriteLine($"[AliceAuth] Generated key pair. Public (N={N}, e={e}). Private d is kept secret.");
+        Console.WriteLine("[AliceAuth] Enter integer message M to sign (M < N):");
+        string inM = Console.ReadLine() ?? "";
+        
+        if (!BigInteger.TryParse(inM.Trim(), out BigInteger M))
+        {
+            Console.WriteLine("[AliceAuth] Invalid integer; aborting signing.");
+            return (N, e, d, 0, 0);
+        }
+        if (M >= N)
+        {
+            Console.WriteLine($"[AliceAuth] Message M={M} must be less than N={N}. Aborting signing.");
             return (N, e, d, 0, 0);
         }
 
-        int signature = Modular.Power(M, d, N);
-        Console.WriteLine($"[AliceAuth] Signature s = {signature} (sent to verifier along with M).");
-        return (N, e, d, M, signature);
-    }
+        BigInteger signature = Modular.Power(M, d, N);
+        Console.WriteLine($"[AliceAuth] Signature s = {signature} (sent to verifier along with M).");
+        return (N, e, d, M, signature);
+    }
 
-    // --- 5) Bob verify signature
-    public static bool BobVerifyRSASignature(int N, int e, int M, int signature)
-    {
-        int recovered = Modular.Power(signature, e, N);
-        Console.WriteLine($"[BobVerify] computed s^e mod N = {recovered}. Expected M = {M}.");
-        return recovered == M;
-    }
+    // --- 5) Bob verify signature
+    public static bool BobVerifyRSASignature(BigInteger N, BigInteger e, BigInteger M, BigInteger signature)
+    {
+        BigInteger recovered = Modular.Power(signature, e, N);
+        Console.WriteLine($"[BobVerify] computed s^e mod N = {recovered}. Expected M = {M}.");
+        return recovered == M;
+    }
 
-    // --- 6) 
-    public static void Demo_RSA_Authentication()
-    {
-        Console.WriteLine("=== RSA Authentication (Signing) Demo ===");
-        var (N, e, d, M, s) = AliceAuthSign();
-        if (N == 0) return; // aborted signing
-        Console.WriteLine("[DemoAuth] Bob verifying signature...");
-        bool ok = BobVerifyRSASignature(N, e, M, s);
-        Console.WriteLine(ok ? "[DemoAuth] Signature valid." : "[DemoAuth] Signature INVALID.");
-    }
+    // --- 6) 
+    public static void Demo_RSA_Authentication()
+    {
+        Console.WriteLine("=== RSA Authentication (Signing) Demo ===");
+        var (N, e, d, M, s) = AliceAuthSign();
+        if (N == 0) return; // aborted signing
+        Console.WriteLine("[DemoAuth] Bob verifying signature...");
+        bool ok = BobVerifyRSASignature(N, e, M, s);
+        Console.WriteLine(ok ? "[DemoAuth] Signature valid." : "[DemoAuth] Signature INVALID.");
+    }
 
     // --- 7) One-time pad encrypt
     public static byte[] OneTimePadEncrypt(byte[] pad, byte[] message)

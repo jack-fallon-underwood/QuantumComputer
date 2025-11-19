@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 public static class Modular
 {
@@ -18,6 +19,8 @@ public static class Modular
     {
         return Mod(a * b, n);
     }
+
+   
 
     public static int Power(int a, int b, int n)
     {
@@ -107,4 +110,46 @@ public static class Modular
         int phi = Totient(n);
         return Power(a, phi, n) == 1;
     }
+
+    public static BigInteger Power(BigInteger a, BigInteger b, BigInteger n)
+{
+    if (n <= 0) throw new ArgumentException("Modulus must be positive.");
+    BigInteger result = 1;
+    a = a % n;
+    while (b > 0)
+    {
+        if ((b & 1) == 1)
+            result = (result * a) % n;
+        a = (a * a) % n;
+        b >>= 1;
+    }
+    return result;
+}
+
+public static BigInteger Multiply(BigInteger a, BigInteger b, BigInteger n)
+{
+    return (a * b) % n;
+}
+
+public static BigInteger ModInverse(BigInteger b, BigInteger n)
+{
+    BigInteger x, y;
+    BigInteger g = ExtendedGCD(b, n, out x, out y);
+    if (g != 1) throw new InvalidOperationException("No modular inverse exists.");
+    return (x % n + n) % n;
+}
+
+// Extended GCD for BigInteger
+private static BigInteger ExtendedGCD(BigInteger a, BigInteger b, out BigInteger x, out BigInteger y)
+{
+    if (b == 0) { x = 1; y = 0; return a; }
+    BigInteger x1, y1;
+    BigInteger g = ExtendedGCD(b, a % b, out x1, out y1);
+    x = y1;
+    y = x1 - (a / b) * y1;
+    return g;
+}
+
+public static bool AreCoprime(BigInteger a, BigInteger b) => BigInteger.GreatestCommonDivisor(a, b) == 1;
+
 }
